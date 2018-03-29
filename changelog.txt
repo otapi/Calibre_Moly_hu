@@ -1,0 +1,23 @@
+[B]Version 1.0.5[/B] - 29 March 2018
+Search was too wide, now filters only to relevant title and author
+Update by otapi
+
+[B]Version 1.0.4[/B] - 25 Jan 2017
+Now working again, and searches for ISBNs
+Update by fatsadt
+
+[B]Version 1.0.3[/B] - 2 Jan 2014
+Can download multiple bigger cover images now
+Reworked the plugin configuration
+
+[B]Version 1.0.2[/B] - 28 Jul 2013
+Patched plugin to work with the new layout of moly.hu
+Now parses language as well, so calibre will no longer capitalize Hungarian book titles
+
+[B]Version 1.0.1[/B] - 9 Oct 2012
+Fix for Moly.hu changes to html code
+Parses ISBN, publisher, year of publication as well
+Raised max number of results to 12
+
+[B]Version 1.0[/B] - 08 May 2011
+Initial release of plugin
