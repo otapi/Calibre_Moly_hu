@@ -21,6 +21,10 @@ Download the attached zip file and install the plugin as described in the Introd
 Note that this is not a GUI plugin so it is not intended/cannot be added to context menus/toolbars etc.
 
 ## Version History:
+**Version 1.0.6** - 11 April 2018
+The filter of relevant title and author by transliterate the extended Hungarian characters
+Update by otapi
+
 **Version 1.0.5** - 29 March 2018
 Search was too wide, now filters only to relevant title and author
 Update by otapi
