@@ -23,7 +23,7 @@ class Moly_hu(Source):
 	name					= 'Moly_hu'
 	description				= _('Downloads metadata and covers from moly.hu')
 	author					= 'Hoffer Csaba & Kloon & fatsadt & otapi'
-	version					= (1, 0, 5)
+	version					= (1, 0, 6)
 	minimum_calibre_version = (0, 8, 0)
 
 	capabilities = frozenset(['identify', 'cover'])
@@ -156,12 +156,13 @@ class Moly_hu(Source):
 			author_n_titles = author_n_title.split(':', 1)
 			author = author_n_titles[0].strip(' \r\n\t')
 			title = author_n_titles[1].strip(' \r\n\t')
+			log.info('Orig: %s, target: %s'%(self.strip_accents(orig_title), self.strip_accents(title)))
 			
 			if orig_title:
-				if orig_title.lower() not in title.lower():
+				if orig_title.lower() not in title.lower() and self.strip_accents(orig_title) not in self.strip_accents(title):
 					continue
 			if orig_authors:
-				if orig_authors[0].lower() not in author.lower():
+				if orig_authors[0].lower() not in author.lower() and self.strip_accents(orig_authors[0]) not in self.strip_accents(author):
 					continue
 			
 			for book_url in book_urls:
@@ -172,16 +173,23 @@ class Moly_hu(Source):
 					i += 1
 				if (i >= max_results):
 					return
-					
-	def download_cover(self, log, result_queue, abort,
-            title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
-        if not title:
-            return
-        urls = self.get_image_urls(title, authors, identifiers, log, abort, timeout)
-        self.download_multiple_covers(title, authors, urls, get_best_cover, timeout, result_queue, abort, log)
+		
+	def strip_accents(self, s):
+		symbols = (u"öÖüÜóÓőŐúÚéÉáÁűŰíÍ",
+                   u"oOuUoOoOuUeEaAuUiI")
+
+		tr = dict( [ (ord(a), ord(b)) for (a, b) in zip(*symbols) ] )
+
+		return s.translate(tr).lower()
+		
+	def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
+		if not title:
+			return
+		urls = self.get_image_urls(title, authors, identifiers, log, abort, timeout)
+		self.download_multiple_covers(title, authors, urls, get_best_cover, timeout, result_queue, abort, log)
 
 	def get_image_urls(self, title, authors, identifiers, log, abort, timeout):
-        cached_url = self.get_cached_cover_url(identifiers)
+		cached_url = self.get_cached_cover_url(identifiers)
 		if cached_url is None:
 			log.info('No cached cover found, running identify')
 			rq = Queue()

@@ -1,3 +1,7 @@
+[B]Version 1.0.6[/B] - 11 April 2018
+The filter of relevant title and author by transliterate the extended Hungarian characters
+Update by otapi
+
 [B]Version 1.0.5[/B] - 29 March 2018
 Search was too wide, now filters only to relevant title and author
 Update by otapi
