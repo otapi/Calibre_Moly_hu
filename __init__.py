@@ -1,5 +1,5 @@
 ﻿#!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# vim:fileencoding=utf-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
 						print_function)
 
@@ -23,7 +23,7 @@ class Moly_hu(Source):
 	name					= 'Moly_hu'
 	description				= _('Downloads metadata and covers from moly.hu')
 	author					= 'Hoffer Csaba & Kloon & fatsadt & otapi'
-	version					= (1, 0, 6)
+	version					= (1, 0, 7)
 	minimum_calibre_version = (0, 8, 0)
 
 	capabilities = frozenset(['identify', 'cover'])
@@ -162,7 +162,12 @@ class Moly_hu(Source):
 				if orig_title.lower() not in title.lower() and self.strip_accents(orig_title) not in self.strip_accents(title):
 					continue
 			if orig_authors:
-				if orig_authors[0].lower() not in author.lower() and self.strip_accents(orig_authors[0]) not in self.strip_accents(author):
+				author1 = orig_authors[0]
+				authorsplit = author1.split(" ")
+				author2 = author1
+				if len(authorsplit) > 1:
+					author2 = '%s %s'%(authorsplit[1], authorsplit[0])
+				if author1.lower() not in author.lower() and self.strip_accents(author1) not in self.strip_accents(author) and author2.lower() not in author.lower() and self.strip_accents(author2) not in self.strip_accents(author):
 					continue
 			
 			for book_url in book_urls:
