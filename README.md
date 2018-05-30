@@ -20,7 +20,19 @@ Requires Calibre 0.8 or later. Tested with 3.2.0.0
 Download the attached zip file and install the plugin as described in the Introduction to plugins thread.
 Note that this is not a GUI plugin so it is not intended/cannot be added to context menus/toolbars etc.
 
+
 ## Version History:
+
+**Version 1.0.8** - 30 May 2018
+Search primarily by isbn. (It's the most specific and accurate data. Try out the Extract ISBN plugin. With that the search is almost flawles)
+If no match found fall back to broader search.
+If no match try to remove () parts from title, after that try to remove authors.
+Update by Dezso
+
+**Version 1.0.7** -  8 May 2018
+Find switched family-first names as well 
+Update by otapi
+
 **Version 1.0.6** - 11 April 2018
 The filter of relevant title and author by transliterate the extended Hungarian characters
 Update by otapi

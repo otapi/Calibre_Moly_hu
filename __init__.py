@@ -120,12 +120,21 @@ class Moly_hu(Source):
 			return
 
 		if not matches:
+			log.error('No matches found with query: %r'%query)
 			if identifiers and title and authors:
 				log.info('No matches found with identifiers, retrying using only'
 						' title and authors')
 				return self.identify(log, result_queue, abort, title=title,
-						authors=authors, timeout=timeout)
-			log.error('No matches found with query: %r'%query)
+						authors=authors, timeout=timeout)		
+			elif title and authors and title!=title.split("(")[0]:
+				log.info('No matches found with authors and title try removing () part from title, and search by title and author')
+				tit=title.split("(")[0]
+				return self.identify(log, result_queue, abort, title=tit,
+						authors=authors, timeout=timeout)	
+			elif title and authors:
+				log.info('No matches found with authors and title, retrying using only title')
+				return self.identify(log, result_queue, abort, title=title,
+						authors=None, timeout=timeout)
 			return
 
 		from calibre_plugins.moly_hu.worker import Worker

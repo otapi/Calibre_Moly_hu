@@ -1,3 +1,9 @@
+[B]Version 1.0.8[/B] - 30 May 2018
+Search primarily by isbn. (It's the most specific and accurate data. Try out the Extract ISBN plugin. With that the search is almost flawles)
+If no match found fall back to broader search.
+If no match try to remove () parts from title, after that try to remove authors.
+Update by Dezso
+
 [B]Version 1.0.7[/B] - 8 May 2018
 Find switched family-first names as well 
 Update by otapi
