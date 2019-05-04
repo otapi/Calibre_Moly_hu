@@ -4,7 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 						print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2011-2018, Hoffer Csaba <csaba.hoffer@gmail.com>, Kloon <kloon@techgeek.co.in>, otapi <otapigems.com>'
+__copyright__ = '2011-2018, Hoffer Csaba <csaba.hoffer@gmail.com>, Kloon <kloon@techgeek.co.in>, otapi <otapigems.com>, Dezso <orai.dezso@gmail.com>'
 __docformat__ = 'restructuredtext hu'
 
 import time
@@ -22,8 +22,8 @@ from calibre import browser
 class Moly_hu(Source):
 	name					= 'Moly_hu'
 	description				= _('Downloads metadata and covers from moly.hu')
-	author					= 'Hoffer Csaba & Kloon & fatsadt & otapi'
-	version					= (1, 0, 7)
+	author					= 'Hoffer Csaba & Kloon & fatsadt & otapi & Dezso'
+	version					= (1, 0, 8)
 	minimum_calibre_version = (0, 8, 0)
 
 	capabilities = frozenset(['identify', 'cover'])
@@ -46,6 +46,10 @@ class Moly_hu(Source):
 	SEARCH_URL = BASE_URL + '/kereses?utf8=%E2%9C%93&q='
 
 	def create_query(self, log, title=None, authors=None, identifiers={}):
+		isbn = check_isbn(identifiers.get('isbn', None))
+		if isbn is not None:
+			return (Moly_hu.SEARCH_URL + '%s'%(isbn).encode('utf-8'))
+			
 		if title is not None:
 			search_title = urllib.quote(title.encode('utf-8'))
 		else:
@@ -109,18 +113,28 @@ class Moly_hu(Source):
 				msg = 'Failed to parse moly.hu page for query: %r'%query
 				log.exception(msg)
 				return msg
-			self._parse_search_results(log, title, authors, root, matches, timeout)
+			isbn=check_isbn(identifiers.get('isbn', None))
+			self._parse_search_results(log, title, authors, root, matches, timeout, isbn)
 
 		if abort.is_set():
 			return
 
 		if not matches:
+			log.error('No matches found with query: %r'%query)
 			if identifiers and title and authors:
 				log.info('No matches found with identifiers, retrying using only'
 						' title and authors')
 				return self.identify(log, result_queue, abort, title=title,
-						authors=authors, timeout=timeout)
-			log.error('No matches found with query: %r'%query)
+						authors=authors, timeout=timeout)		
+			elif title and authors and title!=title.split("(")[0]:
+				log.info('No matches found with authors and title try removing () part from title, and search by title and author')
+				tit=title.split("(")[0]
+				return self.identify(log, result_queue, abort, title=tit,
+						authors=authors, timeout=timeout)	
+			elif title and authors:
+				log.info('No matches found with authors and title, retrying using only title')
+				return self.identify(log, result_queue, abort, title=title,
+						authors=None, timeout=timeout)
 			return
 
 		from calibre_plugins.moly_hu.worker import Worker
@@ -144,31 +158,35 @@ class Moly_hu(Source):
 				break
 
 		return None
-	def _parse_search_results(self, log, orig_title, orig_authors, root, matches, timeout):
+		
+
+	def _parse_search_results(self, log, orig_title, orig_authors, root, matches, timeout, isbn):
 		max_results = self.prefs[Moly_hu.KEY_MAX_BOOKS]
 		results = root.xpath('//a[@class="book_selector"]')
 		log.info('Found %d possible books (max: %d)'%(len(results), max_results))
 		i = 0
 		for result in results:
 			book_urls = result.xpath('@href')
-			etree.strip_tags(result, 'strong')
-			author_n_title = result.text
-			author_n_titles = author_n_title.split(':', 1)
-			author = author_n_titles[0].strip(' \r\n\t')
-			title = author_n_titles[1].strip(' \r\n\t')
-			log.info('Orig: %s, target: %s'%(self.strip_accents(orig_title), self.strip_accents(title)))
 			
-			if orig_title:
-				if orig_title.lower() not in title.lower() and self.strip_accents(orig_title) not in self.strip_accents(title):
-					continue
-			if orig_authors:
-				author1 = orig_authors[0]
-				authorsplit = author1.split(" ")
-				author2 = author1
-				if len(authorsplit) > 1:
-					author2 = '%s %s'%(authorsplit[1], authorsplit[0])
-				if author1.lower() not in author.lower() and self.strip_accents(author1) not in self.strip_accents(author) and author2.lower() not in author.lower() and self.strip_accents(author2) not in self.strip_accents(author):
-					continue
+			if isbn is None:
+				etree.strip_tags(result, 'strong')
+				author_n_title = result.text
+				author_n_titles = author_n_title.split(':', 1)
+				author = author_n_titles[0].strip(' \r\n\t')
+				title = author_n_titles[1].strip(' \r\n\t')
+				log.info('Orig: %s, target: %s'%(self.strip_accents(orig_title), self.strip_accents(title)))
+			
+				if orig_title:
+					if orig_title.lower() not in title.lower() and self.strip_accents(orig_title) not in self.strip_accents(title):
+						continue
+				if orig_authors:
+					author1 = orig_authors[0]
+					authorsplit = author1.split(" ")
+					author2 = author1
+					if len(authorsplit) > 1:
+						author2 = '%s %s'%(authorsplit[1], authorsplit[0])
+					if author1.lower() not in author.lower() and self.strip_accents(author1) not in self.strip_accents(author) and author2.lower() not in author.lower() and self.strip_accents(author2) not in self.strip_accents(author):
+						continue
 			
 			for book_url in book_urls:
 				result_url = Moly_hu.BASE_URL + book_url
@@ -178,6 +196,16 @@ class Moly_hu(Source):
 					i += 1
 				if (i >= max_results):
 					return
+		if i==0:
+			for result in results:
+				book_urls = result.xpath('@href')
+				for book_url in book_urls:
+					result_url = Moly_hu.BASE_URL + book_url
+					if (result_url not in matches):
+						matches.append(result_url)
+						i += 1
+					if (i >= max_results):
+						return
 		
 	def strip_accents(self, s):
 		symbols = (u"öÖüÜóÓőŐúÚéÉáÁűŰíÍ",
