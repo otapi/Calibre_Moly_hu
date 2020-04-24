@@ -186,16 +186,6 @@ class Moly_hu(Source):
 					i += 1
 				if (i >= max_results):
 					return
-		if i==0:
-			for result in results:
-				book_urls = result.xpath('@href')
-				for book_url in book_urls:
-					result_url = Moly_hu.BASE_URL + book_url
-					if (result_url not in matches):
-						matches.append(result_url)
-						i += 1
-					if (i >= max_results):
-						return
 		
 	def strip_accents(self, s):
 		symbols = (u"öÖüÜóÓőŐúÚéÉáÁűŰíÍ",
