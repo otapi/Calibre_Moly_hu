@@ -159,26 +159,25 @@ class Moly_hu(Source):
 		for result in results:
 			book_urls = result.xpath('@href')
 			
-			if isbn is None:
-				etree.strip_tags(result, 'strong')
-				author_n_title = result.text
-				author_n_titles = author_n_title.split(':', 1)
-				author = author_n_titles[0].strip(' \r\n\t')
-				title = author_n_titles[1].strip(' \r\n\t')
-				log.info('Orig: %s, target: %s'%(self.strip_accents(orig_title), self.strip_accents(title)))
-			
-				if orig_title:
-					if orig_title.lower() not in title.lower() and self.strip_accents(orig_title) not in self.strip_accents(title):
-						continue
-				if orig_authors:
-					author1 = orig_authors[0]
-					authorsplit = author1.split(" ")
-					author2 = author1
-					if len(authorsplit) > 1:
-						author2 = '%s %s'%(authorsplit[1], authorsplit[0])
-					if author1.lower() not in author.lower() and self.strip_accents(author1) not in self.strip_accents(author) and author2.lower() not in author.lower() and self.strip_accents(author2) not in self.strip_accents(author):
-						continue
-			
+			etree.strip_tags(result, 'strong')
+			author_n_title = result.text
+			author_n_titles = author_n_title.split(':', 1)
+			author = author_n_titles[0].strip(' \r\n\t')
+			title = author_n_titles[1].strip(' \r\n\t')
+			log.info('Orig: %s, target: %s'%(self.strip_accents(orig_title), self.strip_accents(title)))
+		
+			if orig_title:
+				if orig_title.lower() not in title.lower() and self.strip_accents(orig_title) not in self.strip_accents(title):
+					continue
+			if orig_authors:
+				author1 = orig_authors[0]
+				authorsplit = author1.split(" ")
+				author2 = author1
+				if len(authorsplit) > 1:
+					author2 = '%s %s'%(authorsplit[1], authorsplit[0])
+				if author1.lower() not in author.lower() and self.strip_accents(author1) not in self.strip_accents(author) and author2.lower() not in author.lower() and self.strip_accents(author2) not in self.strip_accents(author):
+					continue
+		
 			for book_url in book_urls:
 				result_url = Moly_hu.BASE_URL + book_url
 				
