@@ -126,15 +126,6 @@ class Moly_hu(Source):
 						' title and authors')
 				return self.identify(log, result_queue, abort, title=title,
 						authors=authors, timeout=timeout)		
-			elif title and authors and title!=title.split("(")[0]:
-				log.info('No matches found with authors and title try removing () part from title, and search by title and author')
-				tit=title.split("(")[0]
-				return self.identify(log, result_queue, abort, title=tit,
-						authors=authors, timeout=timeout)	
-			elif title and authors:
-				log.info('No matches found with authors and title, retrying using only title')
-				return self.identify(log, result_queue, abort, title=title,
-						authors=None, timeout=timeout)
 			return
 
 		from calibre_plugins.moly_hu.worker import Worker
